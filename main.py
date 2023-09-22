@@ -2,7 +2,12 @@ import tkinter as tk
 from tkinter import ttk
 import csv
 
-# Declare entry widgets as global variables
+#Root has beem defined
+root = tk.Tk()
+root.title("Gradebook System")
+
+
+# Declared entry widgets as global variables
 sid_entry = None
 first_name_entry = None
 last_name_entry = None
@@ -24,11 +29,7 @@ def import_data():
     try:
         with open('Student_data.csv', 'r') as file:
             csv_reader = csv.reader(file)
-            
-            # A variable to store the data
             data = []
-            
-            # Iterate through the rows in the Student_data.csv file
             for row in csv_reader:
                 data.append(row)  # Add each row to the data list
             
@@ -41,7 +42,7 @@ def import_data():
     except FileNotFoundError:
         status_label.config(text="File not found!")
 
-# Create a function to add a new student
+# Created a function to add a new student
 def add_student():
     global sid_entry, first_name_entry, last_name_entry, email_entry
     global hw1_entry, hw2_entry, hw3_entry, quiz1_entry, quiz2_entry, quiz3_entry, quiz4_entry
@@ -122,6 +123,73 @@ def add_student():
     save_button = ttk.Button(add_student_window, text="Save", command=save_student)
     save_button.grid(row=13, column=0, columnspan=2)
 
+
+
+
+    
+
+# Created a function to search by SID
+def search_by_sid():
+    
+    search_window = tk.Toplevel(root)
+    search_window.title("Search by SID")
+    
+    search_label = ttk.Label(search_window, text="Enter SID to search for:")
+    search_label.grid(row=0, column=0)
+    
+    search_entry = ttk.Entry(search_window)
+    search_entry.grid(row=0, column=1)
+    
+    search_button = ttk.Button(search_window, text="Search", command=lambda: perform_sid_search(search_entry.get()))
+    search_button.grid(row=1, column=0, columnspan=2)
+
+search_button = ttk.Button(root, text="Search by SID", command=search_by_sid)
+
+
+# Updates the perform_sid_search function to accept search_sid as an argument
+def perform_sid_search(search_sid):
+    
+    student_found = False
+
+    with open('Student_data.csv', 'r') as file:
+        csv_reader = csv.reader(file)
+        for row in csv_reader:
+            if row[0] == search_sid:  # Assuming SID is in the first column
+                # Display the student's information
+                student_found = True
+                display_search_result(row)
+                break
+
+    # If student not found, display a message
+    if not student_found:
+        display_search_result("Student with SID " + search_sid + " not found.")
+
+# Update the display_search_result function to create a label to display the information
+def display_search_result(result):
+
+    result_window = tk.Toplevel(root)
+    result_window.title("Search Result")
+
+    result_label = ttk.Label(result_window, text=result)
+    result_label.pack()
+# Create a function to compute the final letter score
+def compute_final_score(scores):
+    # Implement code to compute the final letter score
+    pass
+
+# Create a function to update student scores
+def update_scores():
+    # Implement code to update student scores
+    pass
+
+# Create a function to search by task name
+def search_by():
+    pass
+# Create a function to export data to CSV
+def export_data():
+    # Implement code to export data to CSV
+    pass
+
 # Function to save the entered student data
 def save_student():
     # Retrieve the entered data from the entry widgets
@@ -147,32 +215,6 @@ def save_student():
 
     # Close the "Add Student" dialog
     add_student_window.destroy()
-
-
-    
-
-# Create a function to search by SID
-def search_by_sid():
-    # Implement code to search for a student by SID
-    pass
-
-# Create a function to compute the final letter score
-def compute_final_score(scores):
-    # Implement code to compute the final letter score
-    pass
-
-# Create a function to update student scores
-def update_scores():
-    # Implement code to update student scores
-    pass
-
-# Create a function to search by task name
-def search_by():
-    pass
-# Create a function to export data to CSV
-def export_data():
-    # Implement code to export data to CSV
-    pass
 
 # Create the main window
 root = tk.Tk()
