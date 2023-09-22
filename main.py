@@ -26,8 +26,50 @@ def import_data():
 
 # Create a function to add a new student
 def add_student():
-    # Implement code to add a new student
-    pass
+    # Created a new Toplevel window
+    add_student_window = tk.Toplevel(root)
+    add_student_window.title("Add Student")
+
+    # Created and configured GUI elements
+    sid_label = ttk.Label(add_student_window, text="SID:")
+    sid_entry = ttk.Entry(add_student_window)
+
+    first_name_label = ttk.Label(add_student_window, text="First Name:")
+    first_name_entry = ttk.Entry(add_student_window)
+
+    last_name_label = ttk.Label(add_student_window, text="Last Name:")
+    last_name_entry = ttk.Entry(add_student_window)
+
+    email_label = ttk.Label(add_student_window, text="Email:")
+    email_entry = ttk.Entry(add_student_window)
+    
+    hw1_label = ttk.Label(add_student_window, text="HW1:")
+    hw1_entry = ttk.Entry(add_student_window)
+    
+    hw2_label = ttk.Label(add_student_window, text="HW2:")
+    hw2_entry = ttk.Entry(add_student_window)
+    
+    hw3_label = ttk.Label(add_student_window, text="HW3:")
+    hw3_entry = ttk.Entry(add_student_window)
+    
+    quiz1_label = ttk.Label(add_student_window, text="Quiz1:")
+    quiz1_entry = ttk.Entry(add_student_window)
+    
+    quiz2_label = ttk.Label(add_student_window, text="Quiz2:")
+    quiz2_entry = ttk.Entry(add_student_window)
+    
+    quiz3_label = ttk.Label(add_student_window, text="Quiz3:")
+    quiz3_entry = ttk.Entry(add_student_window)
+    
+    quiz4_label = ttk.Label(add_student_window, text="Quiz4:")
+    quiz4_entry = ttk.Entry(add_student_window)
+    
+    midterm_exam_label = ttk.Label(add_student_window, text="MidtermExam:")
+    midterm_exam_entry = ttk.Entry(add_student_window)
+    
+    final_exam_label = ttk.Label(add_student_window, text="FinalExam:")
+    final_exam_entry = ttk.Entry(add_student_window)
+    
 
 # Create a function to search by SID
 def search_by_sid():
