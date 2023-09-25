@@ -7,7 +7,7 @@ root = tk.Tk()
 root.title("Gradebook System")
 
 
-# Declared entry widgets as global variables
+# Declared entry widgets as global variables sid to final exam 
 sid_entry = None
 first_name_entry = None
 last_name_entry = None
@@ -38,7 +38,7 @@ def import_data():
             for row in data:
                 data_text.insert(tk.END, ', '.join(row) + '\n')  # Display data in a Text widget
             
-            status_label.config(text="Data imported successfully.")
+            status_label.config(text="Data imported successfully!")
     except FileNotFoundError:
         status_label.config(text="File not found!")
 
@@ -47,6 +47,7 @@ def add_student():
     global sid_entry, first_name_entry, last_name_entry, email_entry
     global hw1_entry, hw2_entry, hw3_entry, quiz1_entry, quiz2_entry, quiz3_entry, quiz4_entry
     global midterm_exam_entry, final_exam_entry
+    global add_student_window
 
     # Created a new Toplevel window
     add_student_window = tk.Toplevel(root)
@@ -121,12 +122,7 @@ def add_student():
     # Save buttton added 
     
     save_button = ttk.Button(add_student_window, text="Save", command=save_student)
-    save_button.grid(row=13, column=0, columnspan=2)
-
-
-
-
-    
+    save_button.grid(row=13, column=0, columnspan=2)   
 
 # Created a function to search by SID
 def search_by_sid():
@@ -154,10 +150,10 @@ def perform_sid_search(search_sid):
     with open('Student_data.csv', 'r') as file:
         csv_reader = csv.reader(file)
         for row in csv_reader:
-            if row[0] == search_sid:  # Assuming SID is in the first column
+            if row[0] == search_sid:  # SID is in the first column
                 # Display the student's information
                 student_found = True
-                display_search_result(row)
+                display_search_result(row) # Display the student's information basically the whole row
                 break
 
     # If student not found, display a message
@@ -209,6 +205,11 @@ def save_student():
     
     # Create a new student record (you can decide how to store this data, e.g., in a list, dictionary, or save to a file)
     new_student = [new_sid, new_first_name, new_last_name, new_email, new_hw1, new_hw2, new_hw3, new_quiz1, new_quiz2, new_quiz3, new_quiz4, new_midterm_exam, new_final_exam]
+    
+    # Open the CSV file and write the new student data
+    with open('Student_data.csv', 'a', newline='') as file:
+        csv_writer = csv.writer(file)
+        csv_writer.writerow(new_student)
 
     # Display the new student data in the Text widget
     data_text.insert(tk.END, ', '.join(new_student) + '\n')
