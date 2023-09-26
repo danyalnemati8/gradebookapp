@@ -23,6 +23,7 @@ midterm_exam_entry = None
 final_exam_entry = None
 
 add_student_window = None
+delete_student_window = None  
 
 # Creating a function to import data from CSV
 def import_data():
@@ -123,6 +124,52 @@ def add_student():
     
     save_button = ttk.Button(add_student_window, text="Save", command=save_student)
     save_button.grid(row=13, column=0, columnspan=2)   
+def delete_student():
+    global delete_student_window
+    global sid_entry  # Declare sid_entry as a global variable
+
+    # Create a new Toplevel window
+    delete_student_window = tk.Toplevel(root)
+    delete_student_window.title("Delete Student")
+
+    # Create and configure GUI elements
+    sid_label = ttk.Label(delete_student_window, text="Enter SID to delete:")
+    sid_label.grid(row=0, column=0)
+
+    sid_entry = ttk.Entry(delete_student_window)
+    sid_entry.grid(row=0, column=1)
+
+    def confirm_delete():
+        sid_to_delete = sid_entry.get()
+        # Open the CSV file and create a temporary list to store the data
+        data_to_keep = []
+        student_deleted = False
+
+        with open('Student_data.csv', 'r') as file:
+            csv_reader = csv.reader(file)
+            for row in csv_reader:
+                if row[0] != sid_to_delete:
+                    data_to_keep.append(row)
+                else:
+                    student_deleted = True
+
+        if student_deleted:
+            # Rewrite the CSV file with the updated data
+            with open('Student_data.csv', 'w', newline='') as file:
+                csv_writer = csv.writer(file)
+                csv_writer.writerows(data_to_keep)
+
+            # Update the displayed data
+            data_text.delete(1.0, tk.END)
+            for row in data_to_keep:
+                data_text.insert(tk.END, ', '.join(row) + '\n')
+
+            status_label.config(text=f"Student with SID {sid_to_delete} deleted.")
+        else:
+            status_label.config(text=f"Student with SID {sid_to_delete} not found.")
+
+    delete_button = ttk.Button(delete_student_window, text="Delete", command=confirm_delete)
+    delete_button.grid(row=1, column=0, columnspan=2)
 
 # Created a function to search by SID
 def search_by_sid():
@@ -169,9 +216,38 @@ def display_search_result(result):
     result_label = ttk.Label(result_window, text=result)
     result_label.pack()
 # Create a function to compute the final letter score
-def compute_final_score(scores):
-    # Implement code to compute the final letter score
-    pass
+def compute_final_score(hw1, hw2, hw3, quiz1, quiz2, quiz3, quiz4, midterm_exam, final_exam):
+    # Define grading criteria (you can adjust these as needed)
+    hw_weight = 0.2
+    quiz_weight = 0.2
+    midterm_weight = 0.3
+    final_exam_weight = 0.3
+
+    # Calculate weighted scores for each component
+    hw_score = (hw1 + hw2 + hw3) / 3
+    quiz_score = (quiz1 + quiz2 + quiz3 + quiz4) / 4
+
+    # Calculate the final score
+    final_score = (hw_score * hw_weight +
+                   quiz_score * quiz_weight +
+                   midterm_exam * midterm_weight +
+                   final_exam * final_exam_weight)
+
+    # Determine the final letter grade based on the final score (you can define your grading scale)
+    if final_score >= 90:
+        letter_grade = 'A'
+    elif final_score >= 80:
+        letter_grade = 'B'
+    elif final_score >= 70:
+        letter_grade = 'C'
+    elif final_score >= 60:
+        letter_grade = 'D'
+    else:
+        letter_grade = 'F'
+
+    return final_score, letter_grade
+
+    
 
 # Create a function to update student scores
 def update_scores():
@@ -224,6 +300,9 @@ root.title("Gradebook System")
 # Create and configure GUI elements
 import_button = ttk.Button(root, text="Import Data", command=import_data)
 add_button = ttk.Button(root, text="Add Student", command=add_student)
+delete_button = ttk.Button(root, text="Delete Student", command=delete_student)
+delete_button.pack()
+# Rest of your GUI layout...
 search_button = ttk.Button(root, text="Search by SID", command=search_by_sid)
 update_button = ttk.Button(root, text="Update Scores", command=update_scores)
 export_button = ttk.Button(root, text="Export Data", command=export_data)
