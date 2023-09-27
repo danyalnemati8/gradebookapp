@@ -189,7 +189,6 @@ def search_by_sid():
 
 search_button = ttk.Button(root, text="Search by SID", command=search_by_sid)
 
-
 def perform_sid_search(search_sid):
     student_found = False
 
@@ -215,13 +214,6 @@ def perform_sid_search(search_sid):
                     midterm_exam * midterm_weight +
                     final_exam * final_weight
                 )
-                  # Determine the letter grade based on the final score
-                letter_grade = determine_letter_grade(final_score)
-                # Construct the student's information
-                student_info = f"SID: {row[0]}\n"
-                student_info += f"Name: {row[1]} {row[2]}\n"
-                student_info += f"Email: {row[3]}\n"
-                student_info += f"Final Score: {final_score:.2f}\n"
 
                 # Determine the letter grade based on the final score
                 letter_grade = determine_letter_grade(final_score)
@@ -233,16 +225,17 @@ def perform_sid_search(search_sid):
                 student_info += f"Final Score: {final_score:.2f}\n"
                 student_info += f"Letter Grade: {letter_grade}\n"
 
-                # Show the student's information in a message box
-                messagebox.showinfo("Student Information", student_info)
-                
+                # student's information in a pop-up window or label
+                show_student_info(student_info)
+
                 student_found = True
                 break
 
     # If student not found, display a message
     if not student_found:
-        display_student_info("Student with SID " + search_sid + " not found.")
-# Function to determine the letter grade based on the final score
+        show_student_info("Student with SID " + search_sid + " not found.")
+
+# determine the letter grade based on the final score
 def determine_letter_grade(final_score):
     if final_score >= 90:
         return "A"
@@ -255,6 +248,14 @@ def determine_letter_grade(final_score):
     else:
         return "F"
 
+# show student information in a label or pop-up dialog
+def show_student_info(info):
+    result_window = tk.Toplevel(root)
+    result_window.title("Student Information")
+
+    result_label = ttk.Label(result_window, text=info)
+    result_label.pack()
+
 
 # Update the display_search_result function to create a label to display the information
 def display_search_result(result):
@@ -262,7 +263,7 @@ def display_search_result(result):
     result_window = tk.Toplevel(root)
     result_window.title("Search Result")
 
-    result_label = ttk.Label(result_window, text=student_info)
+    result_label = ttk.Label(result_window, text=result)
     result_label.pack()
 
 # Create a function to update student scores
@@ -278,7 +279,6 @@ def export_data():
     # Implement code to export data to CSV
     pass
 
-# Function to save the entered student data
 def save_student():
     # Retrieve the entered data from the entry widgets
     new_sid = sid_entry.get()
@@ -295,27 +295,25 @@ def save_student():
     new_midterm_exam = midterm_exam_entry.get()
     new_final_exam = final_exam_entry.get()
     
-    # Create a new student record (you can decide how to store this data, e.g., in a list, dictionary, or save to a file)
+    # new student record
     new_student = [new_sid, new_first_name, new_last_name, new_email, new_hw1, new_hw2, new_hw3, new_quiz1, new_quiz2, new_quiz3, new_quiz4, new_midterm_exam, new_final_exam]
     
-    # Open the CSV file and write the new student data
-    with open('Student_data.csv', 'a', newline='') as file:
+    # write the new student data
+    with open('Student_data.csv', 'a') as file:
         csv_writer = csv.writer(file)
         csv_writer.writerow(new_student)
-    
-    print(f"Saved new student: {new_student}")
-    
+
     # Display the new student data in the Text widget
     data_text.insert(tk.END, ', '.join(new_student) + '\n')
 
-    # Close the "Add Student" dialog
     add_student_window.destroy()
 
-# Create the main window
+
+# main window
 root = tk.Tk()
 root.title("Gradebook System")
 
-# Create and configure GUI elements
+# configuring GUI elements
 import_button = ttk.Button(root, text="Import Data", command=import_data)
 add_button = ttk.Button(root, text="Add Student", command=add_student)
 delete_button = ttk.Button(root, text="Delete Student", command=delete_student)
