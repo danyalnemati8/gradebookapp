@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.messagebox as messagebox
 import csv
 
 #Root has beem defined
@@ -189,23 +190,71 @@ def search_by_sid():
 search_button = ttk.Button(root, text="Search by SID", command=search_by_sid)
 
 
-# Updates the perform_sid_search function to accept search_sid as an argument
 def perform_sid_search(search_sid):
-    
     student_found = False
 
     with open('Student_data.csv', 'r') as file:
         csv_reader = csv.reader(file)
         for row in csv_reader:
             if row[0] == search_sid:  # SID is in the first column
-                # Display the student's information
+                # Extract scores from the row and convert them to float
+                hw_scores = [float(row[4]), float(row[5]), float(row[6])]
+                quiz_scores = [float(row[7]), float(row[8]), float(row[9]), float(row[10])]
+                midterm_exam = float(row[11])
+                final_exam = float(row[12])
+
+                # Calculate the final score based on the specified weights
+                hw_weight = 0.2
+                quiz_weight = 0.2
+                midterm_weight = 0.3
+                final_weight = 0.3
+
+                final_score = (
+                    sum(hw_scores) / len(hw_scores) * hw_weight +
+                    sum(quiz_scores) / len(quiz_scores) * quiz_weight +
+                    midterm_exam * midterm_weight +
+                    final_exam * final_weight
+                )
+                  # Determine the letter grade based on the final score
+                letter_grade = determine_letter_grade(final_score)
+                # Construct the student's information
+                student_info = f"SID: {row[0]}\n"
+                student_info += f"Name: {row[1]} {row[2]}\n"
+                student_info += f"Email: {row[3]}\n"
+                student_info += f"Final Score: {final_score:.2f}\n"
+
+                # Determine the letter grade based on the final score
+                letter_grade = determine_letter_grade(final_score)
+
+                # Display the student's information and final score
+                student_info = f"SID: {row[0]}\n"
+                student_info += f"Name: {row[1]} {row[2]}\n"
+                student_info += f"Email: {row[3]}\n"
+                student_info += f"Final Score: {final_score:.2f}\n"
+                student_info += f"Letter Grade: {letter_grade}\n"
+
+                # Show the student's information in a message box
+                messagebox.showinfo("Student Information", student_info)
+                
                 student_found = True
-                display_search_result(row) # Display the student's information basically the whole row
                 break
 
     # If student not found, display a message
     if not student_found:
-        display_search_result("Student with SID " + search_sid + " not found.")
+        display_student_info("Student with SID " + search_sid + " not found.")
+# Function to determine the letter grade based on the final score
+def determine_letter_grade(final_score):
+    if final_score >= 90:
+        return "A"
+    elif final_score >= 80:
+        return "B"
+    elif final_score >= 70:
+        return "C"
+    elif final_score >= 60:
+        return "D"
+    else:
+        return "F"
+
 
 # Update the display_search_result function to create a label to display the information
 def display_search_result(result):
@@ -213,41 +262,8 @@ def display_search_result(result):
     result_window = tk.Toplevel(root)
     result_window.title("Search Result")
 
-    result_label = ttk.Label(result_window, text=result)
+    result_label = ttk.Label(result_window, text=student_info)
     result_label.pack()
-# Create a function to compute the final letter score
-def compute_final_score(hw1, hw2, hw3, quiz1, quiz2, quiz3, quiz4, midterm_exam, final_exam):
-    # Define grading criteria (you can adjust these as needed)
-    hw_weight = 0.2
-    quiz_weight = 0.2
-    midterm_weight = 0.3
-    final_exam_weight = 0.3
-
-    # Calculate weighted scores for each component
-    hw_score = (hw1 + hw2 + hw3) / 3
-    quiz_score = (quiz1 + quiz2 + quiz3 + quiz4) / 4
-
-    # Calculate the final score
-    final_score = (hw_score * hw_weight +
-                   quiz_score * quiz_weight +
-                   midterm_exam * midterm_weight +
-                   final_exam * final_exam_weight)
-
-    # Determine the final letter grade based on the final score (you can define your grading scale)
-    if final_score >= 90:
-        letter_grade = 'A'
-    elif final_score >= 80:
-        letter_grade = 'B'
-    elif final_score >= 70:
-        letter_grade = 'C'
-    elif final_score >= 60:
-        letter_grade = 'D'
-    else:
-        letter_grade = 'F'
-
-    return final_score, letter_grade
-
-    
 
 # Create a function to update student scores
 def update_scores():
