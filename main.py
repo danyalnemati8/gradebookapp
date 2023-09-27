@@ -302,7 +302,9 @@ def save_student():
     with open('Student_data.csv', 'a', newline='') as file:
         csv_writer = csv.writer(file)
         csv_writer.writerow(new_student)
-
+    
+    print(f"Saved new student: {new_student}")
+    
     # Display the new student data in the Text widget
     data_text.insert(tk.END, ', '.join(new_student) + '\n')
 
