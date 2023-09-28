@@ -268,9 +268,81 @@ def display_search_result(result):
 
 # Create a function to update student scores
 def update_scores():
-    # Implement code to update student scores
-    pass
+    # Create a window for updating scores
+    update_window = tk.Toplevel(root)
+    update_window.title("Update Scores")
 
+    # Create and configure GUI elements for SID and scores
+    sid_label = ttk.Label(update_window, text="Enter SID to update scores:")
+    sid_label.grid(row=0, column=0)
+    
+    sid_entry = ttk.Entry(update_window)
+    sid_entry.grid(row=0, column=1)
+
+    hw_label = ttk.Label(update_window, text="New Homework Scores (comma-separated):")
+    hw_label.grid(row=1, column=0)
+    
+    hw_entry = ttk.Entry(update_window)
+    hw_entry.grid(row=1, column=1)
+
+    quiz_label = ttk.Label(update_window, text="New Quiz Scores (comma-separated):")
+    quiz_label.grid(row=2, column=0)
+    
+    quiz_entry = ttk.Entry(update_window)
+    quiz_entry.grid(row=2, column=1)
+
+    midterm_label = ttk.Label(update_window, text="New Midterm Exam Score:")
+    midterm_label.grid(row=3, column=0)
+    
+    midterm_entry = ttk.Entry(update_window)
+    midterm_entry.grid(row=3, column=1)
+
+    final_label = ttk.Label(update_window, text="New Final Exam Score:")
+    final_label.grid(row=4, column=0)
+    
+    final_entry = ttk.Entry(update_window)
+    final_entry.grid(row=4, column=1)
+
+    # Function to update scores when the button is clicked
+    def perform_update():
+        # Get the entered SID and scores
+        update_sid = sid_entry.get()
+        new_hw_scores = hw_entry.get().split(',')
+        new_quiz_scores = quiz_entry.get().split(',')
+        new_midterm_score = midterm_entry.get()
+        new_final_score = final_entry.get()
+
+        # Open the CSV file and create a temporary list to store the data
+        data_to_update = []
+
+        with open('Student_data.csv', 'r') as file:
+            csv_reader = csv.reader(file)
+            student_updated = False
+
+            for row in csv_reader:
+                if row[0] == update_sid:
+                    # Update the scores for the specified student
+                    row[4:7] = new_hw_scores
+                    row[7:11] = new_quiz_scores
+                    row[11] = new_midterm_score
+                    row[12] = new_final_score
+                    student_updated = True
+
+                data_to_update.append(row)
+
+        if student_updated:
+            # Rewrite the CSV file with the updated data
+            with open('Student_data.csv', 'w', newline='') as file:
+                csv_writer = csv.writer(file)
+                csv_writer.writerows(data_to_update)
+
+            messagebox.showinfo("Success", "Student scores updated successfully.")
+        else:
+            messagebox.showerror("Error", "Student with SID not found.")
+
+    # Create a button to trigger the score update
+    update_button = ttk.Button(update_window, text="Update Scores", command=perform_update)
+    update_button.grid(row=5, column=0, columnspan=2)
 # Create a function to search by task name
 def search_by():
     pass
@@ -317,11 +389,12 @@ root.title("Gradebook System")
 import_button = ttk.Button(root, text="Import Data", command=import_data)
 add_button = ttk.Button(root, text="Add Student", command=add_student)
 delete_button = ttk.Button(root, text="Delete Student", command=delete_student)
-delete_button.pack()
+
 # Rest of your GUI layout...
 search_button = ttk.Button(root, text="Search by SID", command=search_by_sid)
 update_button = ttk.Button(root, text="Update Scores", command=update_scores)
 export_button = ttk.Button(root, text="Export Data", command=export_data)
+update_button = ttk.Button(root, text="Update Scores", command=update_scores)
 
 status_label = ttk.Label(root, text="")
 # Create a Text widget to display the data
@@ -331,6 +404,7 @@ data_text.pack()  # This line adds the Text widget to the GUI
 # Layout GUI elements
 import_button.pack()
 add_button.pack()
+delete_button.pack()
 search_button.pack()
 update_button.pack()
 export_button.pack()
