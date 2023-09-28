@@ -279,13 +279,13 @@ def update_scores():
     sid_entry = ttk.Entry(update_window)
     sid_entry.grid(row=0, column=1)
 
-    hw_label = ttk.Label(update_window, text="New Homework Scores (comma-separated):")
+    hw_label = ttk.Label(update_window, text="New Homework Scores (3 values comma-separated!!!):")
     hw_label.grid(row=1, column=0)
     
     hw_entry = ttk.Entry(update_window)
     hw_entry.grid(row=1, column=1)
 
-    quiz_label = ttk.Label(update_window, text="New Quiz Scores (comma-separated):")
+    quiz_label = ttk.Label(update_window, text="New Quiz Scores (4 values comma-separated!!!):")
     quiz_label.grid(row=2, column=0)
     
     quiz_entry = ttk.Entry(update_window)
