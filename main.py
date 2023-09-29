@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 import tkinter.messagebox as messagebox
 import csv
 
@@ -8,7 +9,7 @@ root = tk.Tk()
 root.title("Gradebook System")
 
 
-# Declared entry widgets as global variables sid to final exam 
+# Declared entry widgets as global variables sid to final exam, etc.
 sid_entry = None
 first_name_entry = None
 last_name_entry = None
@@ -27,37 +28,41 @@ add_student_window = None
 delete_student_window = None  
 task_name_entry = None
 result_text = None
+filepath = None
 
-# Creating a function to import data from CSV
+# a function to import data from local destkop must be a csv
 def import_data():
+    global filepath
     try:
-        with open('Student_data.csv', 'r') as file:
-            csv_reader = csv.reader(file)
-            data = []
-            for row in csv_reader:
-                data.append(row)  # Add each row to the data list
-            
-            # Display the data in the GUI (you can update this part according to your GUI layout)
+        file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+        if file_path:
+            filepath = file_path  
+            with open(filepath, 'r') as file:
+                csv_reader = csv.reader(file)
+                data = []
+                for row in csv_reader:
+                    data.append(row) 
+
             data_text.delete(1.0, tk.END)  # Clear the existing text
             for row in data:
-                data_text.insert(tk.END, ', '.join(row) + '\n')  # Display data in a Text widget
+                data_text.insert(tk.END, ', '.join(row) + '\n')  # Displays data in a Text widget
             
             status_label.config(text="Data imported successfully!")
     except FileNotFoundError:
         status_label.config(text="File not found!")
 
-# Created a function to add a new student
+# a function to add a new student
 def add_student():
     global sid_entry, first_name_entry, last_name_entry, email_entry
     global hw1_entry, hw2_entry, hw3_entry, quiz1_entry, quiz2_entry, quiz3_entry, quiz4_entry
     global midterm_exam_entry, final_exam_entry
     global add_student_window
 
-    # Created a new Toplevel window
+    # a new Toplevel window
     add_student_window = tk.Toplevel(root)
     add_student_window.title("Add Student")
 
-    # Created and configured GUI elements
+    # configured GUI elements every category in the csv file
     sid_label = ttk.Label(add_student_window, text="SID:")
     sid_label.grid(row=0, column=0)
     sid_entry = ttk.Entry(add_student_window)
@@ -129,13 +134,11 @@ def add_student():
     save_button.grid(row=13, column=0, columnspan=2)   
 def delete_student():
     global delete_student_window
-    global sid_entry  # Declare sid_entry as a global variable
+    global sid_entry 
 
-    # Create a new Toplevel window
     delete_student_window = tk.Toplevel(root)
     delete_student_window.title("Delete Student")
-
-    # Create and configure GUI elements
+    
     sid_label = ttk.Label(delete_student_window, text="Enter SID to delete:")
     sid_label.grid(row=0, column=0)
 
@@ -148,7 +151,7 @@ def delete_student():
         data_to_keep = []
         student_deleted = False
 
-        with open('Student_data.csv', 'r') as file:
+        with open(filepath, 'r') as file:
             csv_reader = csv.reader(file)
             for row in csv_reader:
                 if row[0] != sid_to_delete:
@@ -157,12 +160,12 @@ def delete_student():
                     student_deleted = True
 
         if student_deleted:
-            # Rewrite the CSV file with the updated data
-            with open('Student_data.csv', 'w', newline='') as file:
+            # if you delete rewrites the CSV file with the updated data
+            with open(filepath, 'w', newline='') as file:
                 csv_writer = csv.writer(file)
                 csv_writer.writerows(data_to_keep)
-
-            # Update the displayed data
+                
+            # Updates the displayed data
             data_text.delete(1.0, tk.END)
             for row in data_to_keep:
                 data_text.insert(tk.END, ', '.join(row) + '\n')
@@ -174,7 +177,7 @@ def delete_student():
     delete_button = ttk.Button(delete_student_window, text="Delete", command=confirm_delete)
     delete_button.grid(row=1, column=0, columnspan=2)
 
-# Created a function to search by SID
+# a function to search by SID
 def search_by_sid():
     
     search_window = tk.Toplevel(root)
@@ -194,17 +197,17 @@ search_button = ttk.Button(root, text="Search by SID", command=search_by_sid)
 def perform_sid_search(search_sid):
     student_found = False
 
-    with open('Student_data.csv', 'r') as file:
+    with open(filepath, 'r') as file:
         csv_reader = csv.reader(file)
         for row in csv_reader:
             if row[0] == search_sid:  # SID is in the first column
-                # Extract scores from the row and convert them to float
+                # extract scores from the row and convert them to float
                 hw_scores = [float(row[4]), float(row[5]), float(row[6])]
                 quiz_scores = [float(row[7]), float(row[8]), float(row[9]), float(row[10])]
                 midterm_exam = float(row[11])
                 final_exam = float(row[12])
 
-                # Calculate the final score based on the specified weights
+                # calculate the final score based on the specified weights given in the document 
                 hw_weight = 0.2
                 quiz_weight = 0.2
                 midterm_weight = 0.3
@@ -217,23 +220,21 @@ def perform_sid_search(search_sid):
                     final_exam * final_weight
                 )
 
-                # Determine the letter grade based on the final score
+                # determines the letter grade based on the final score
                 letter_grade = determine_letter_grade(final_score)
 
-                # Display the student's information and final score
                 student_info = f"SID: {row[0]}\n"
                 student_info += f"Name: {row[1]} {row[2]}\n"
                 student_info += f"Email: {row[3]}\n"
                 student_info += f"Final Score: {final_score:.2f}\n"
                 student_info += f"Letter Grade: {letter_grade}\n"
 
-                # student's information in a pop-up window or label
                 show_student_info(student_info)
 
                 student_found = True
                 break
 
-    # If student not found, display a message
+    # if student not found, display a message
     if not student_found:
         show_student_info("Student with SID " + search_sid + " not found.")
 
@@ -259,7 +260,7 @@ def show_student_info(info):
     result_label.pack()
 
 
-# Update the display_search_result function to create a label to display the information
+# updates the display_search_result function to creates a label to display the information
 def display_search_result(result):
 
     result_window = tk.Toplevel(root)
@@ -268,13 +269,12 @@ def display_search_result(result):
     result_label = ttk.Label(result_window, text=result)
     result_label.pack()
 
-# Create a function to update student scores
+# a function to update student scores
 def update_scores():
-    # Create a window for updating scores
+    # a window for updating scores
     update_window = tk.Toplevel(root)
     update_window.title("Update Scores")
-
-    # Create and configure GUI elements for SID and scores
+    
     sid_label = ttk.Label(update_window, text="Enter SID to update scores:")
     sid_label.grid(row=0, column=0)
     
@@ -305,25 +305,24 @@ def update_scores():
     final_entry = ttk.Entry(update_window)
     final_entry.grid(row=4, column=1)
 
-    # Function to update scores when the button is clicked
+    # updates scores when the button is clicked
     def perform_update():
-        # Get the entered SID and scores
+        # use get() to get the entered SID and scores
         update_sid = sid_entry.get()
         new_hw_scores = hw_entry.get().split(',')
         new_quiz_scores = quiz_entry.get().split(',')
         new_midterm_score = midterm_entry.get()
         new_final_score = final_entry.get()
-
-        # Open the CSV file and create a temporary list to store the data
+        
         data_to_update = []
 
-        with open('Student_data.csv', 'r') as file:
+        with open(filepath, 'r') as file:
             csv_reader = csv.reader(file)
             student_updated = False
 
             for row in csv_reader:
                 if row[0] == update_sid:
-                    # Update the scores for the specified student
+                    # updates the scores for the specified student
                     row[4:7] = new_hw_scores
                     row[7:11] = new_quiz_scores
                     row[11] = new_midterm_score
@@ -333,19 +332,24 @@ def update_scores():
                 data_to_update.append(row)
 
         if student_updated:
-            # Rewrite the CSV file with the updated data
-            with open('Student_data.csv', 'w', newline='') as file:
+            # rewrites the CSV file with the updated data
+            with open(filepath, 'w', newline='') as file:
                 csv_writer = csv.writer(file)
                 csv_writer.writerows(data_to_update)
 
             messagebox.showinfo("Success", "Student scores updated successfully.")
+            
+            data_text.delete(1.0, tk.END)  # clears the existing text
+            for row in data_to_update:
+                data_text.insert(tk.END, ', '.join(row) + '\n')  # displays updated data
+
         else:
             messagebox.showerror("Error", "Student with SID not found.")
 
-    # Create a button to trigger the score update
     update_button = ttk.Button(update_window, text="Update Scores", command=perform_update)
     update_button.grid(row=5, column=0, columnspan=2)
-# Create a function to search by task name
+
+# a function to search by task name
 task_name_entry = ttk.Entry(root)
 task_name_entry.pack() 
 def search_by():
@@ -357,15 +361,15 @@ def search_by():
         messagebox.showerror("Invalid Task Name", "Please enter a valid task name.")
         return
 
-    scores = []  # To store scores for the specified task
+    scores = []  # stores scores for the specified task
 
-    with open('Student_data.csv', 'r') as file:
+    with open(filepath, 'r') as file:
         csv_reader = csv.reader(file)
         header = next(csv_reader) 
         task_index = None
 
         try:
-            task_index = header.index(task_name)  # Find the column index for the specified task
+            task_index = header.index(task_name)  
         except ValueError:
             messagebox.showinfo("No Scores", f"No scores found for {task_name}.")
 
@@ -384,25 +388,39 @@ def search_by():
                 min_score = min(scores)
                 avg_score = sum(scores) / len(scores)
 
-                # Display the results in a messagebox
                 result_message = f"Task: {task_name}\n"
                 result_message += f"Maximum Score: {max_score}\n"
                 result_message += f"Minimum Score: {min_score}\n"
                 result_message += f"Average Score: {avg_score:.2f}\n"
 
                 messagebox.showinfo("Task Scores", result_message)
-
-# Assuming you have a button to trigger this function, you can bind it like this:
+                
 search_button = ttk.Button(root, text="Search by Task Name", command=search_by)
 search_button.pack()
 
-# Create a function to export data to CSV
+# a function to export data to CSV
 def export_data():
-    # Implement code to export data to CSV
-    pass
+    try:
+        with open('Student_data_export.csv', 'w', newline='') as file:
+            csv_writer = csv.writer(file)
+
+            header = ["SID", "First Name", "Last Name", "Email", "HW1", "HW2", "HW3", "Quiz1", "Quiz2", "Quiz3", "Quiz4", "Midterm Exam", "Final Exam"]
+            csv_writer.writerow(header)
+
+            # retrieves and writes the data for each student
+            with open(filepath, 'r') as data_file:
+                csv_reader = csv.reader(data_file)
+                next(csv_reader) 
+                for row in csv_reader:
+                    csv_writer.writerow(row)
+
+        messagebox.showinfo("Export Successful", "Data exported to Student_data_export.csv successfully.")
+
+    except Exception as e:
+        messagebox.showerror("Export Error", f"An error occurred while exporting data: {str(e)}")
 
 def save_student():
-    # Retrieve the entered data from the entry widgets
+    # retrieves the entered data from the entry widgets
     new_sid = sid_entry.get()
     new_first_name = first_name_entry.get()
     new_last_name = last_name_entry.get()
@@ -420,12 +438,11 @@ def save_student():
     # new student record
     new_student = [new_sid, new_first_name, new_last_name, new_email, new_hw1, new_hw2, new_hw3, new_quiz1, new_quiz2, new_quiz3, new_quiz4, new_midterm_exam, new_final_exam]
     
-    # write the new student data
-    with open('Student_data.csv', 'a') as file:
+    # writew the new student data
+    with open(filepath, 'a') as file:
         csv_writer = csv.writer(file)
         csv_writer.writerow(new_student)
-
-    # Display the new student data in the Text widget
+        
     data_text.insert(tk.END, ', '.join(new_student) + '\n')
 
     add_student_window.destroy()
@@ -440,20 +457,16 @@ import_button = ttk.Button(root, text="Import Data", command=import_data)
 add_button = ttk.Button(root, text="Add Student", command=add_student)
 delete_button = ttk.Button(root, text="Delete Student", command=delete_student)
 
-# Rest of your GUI layout...
+# setting button to functions
 search_button = ttk.Button(root, text="Search by SID", command=search_by_sid)
 update_button = ttk.Button(root, text="Update Scores", command=update_scores)
 export_button = ttk.Button(root, text="Export Data", command=export_data)
 update_button = ttk.Button(root, text="Update Scores", command=update_scores)
 search_task_button = ttk.Button(root, text="Search by Task Name", command=search_by)
 
-
-
 status_label = ttk.Label(root, text="")
-# Create a Text widget to display the data
 data_text = tk.Text(root, wrap=tk.WORD, height=40, width=150)
-data_text.pack()  # This line adds the Text widget to the GUI
-
+data_text.pack()  
 # Layout GUI elements
 import_button.pack()
 add_button.pack()
@@ -464,5 +477,5 @@ search_task_button.pack()
 export_button.pack()
 status_label.pack()
 
-# Start the Tkinter main loop
+
 root.mainloop()
