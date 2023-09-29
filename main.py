@@ -25,6 +25,8 @@ final_exam_entry = None
 
 add_student_window = None
 delete_student_window = None  
+task_name_entry = None
+result_text = None
 
 # Creating a function to import data from CSV
 def import_data():
@@ -344,8 +346,56 @@ def update_scores():
     update_button = ttk.Button(update_window, text="Update Scores", command=perform_update)
     update_button.grid(row=5, column=0, columnspan=2)
 # Create a function to search by task name
+task_name_entry = ttk.Entry(root)
+task_name_entry.pack() 
 def search_by():
-    pass
+    global task_name_entry, result_text
+    task_name = task_name_entry.get().strip()
+    valid_task_names = {"HW1", "HW2", "HW3", "Quiz1", "Quiz2", "Quiz3", "Quiz4", "MidtermExam", "FinalExam"}
+
+    if task_name not in valid_task_names:
+        messagebox.showerror("Invalid Task Name", "Please enter a valid task name.")
+        return
+
+    scores = []  # To store scores for the specified task
+
+    with open('Student_data.csv', 'r') as file:
+        csv_reader = csv.reader(file)
+        header = next(csv_reader) 
+        task_index = None
+
+        try:
+            task_index = header.index(task_name)  # Find the column index for the specified task
+        except ValueError:
+            messagebox.showinfo("No Scores", f"No scores found for {task_name}.")
+
+        if task_index is not None:
+            for row in csv_reader:
+                try:
+                    task_score = float(row[task_index])
+                    scores.append(task_score)
+                except ValueError:
+                    pass
+
+            if not scores:
+                messagebox.showinfo("No Scores", f"No scores found for {task_name}.")
+            else:
+                max_score = max(scores)
+                min_score = min(scores)
+                avg_score = sum(scores) / len(scores)
+
+                # Display the results in a messagebox
+                result_message = f"Task: {task_name}\n"
+                result_message += f"Maximum Score: {max_score}\n"
+                result_message += f"Minimum Score: {min_score}\n"
+                result_message += f"Average Score: {avg_score:.2f}\n"
+
+                messagebox.showinfo("Task Scores", result_message)
+
+# Assuming you have a button to trigger this function, you can bind it like this:
+search_button = ttk.Button(root, text="Search by Task Name", command=search_by)
+search_button.pack()
+
 # Create a function to export data to CSV
 def export_data():
     # Implement code to export data to CSV
@@ -395,6 +445,9 @@ search_button = ttk.Button(root, text="Search by SID", command=search_by_sid)
 update_button = ttk.Button(root, text="Update Scores", command=update_scores)
 export_button = ttk.Button(root, text="Export Data", command=export_data)
 update_button = ttk.Button(root, text="Update Scores", command=update_scores)
+search_task_button = ttk.Button(root, text="Search by Task Name", command=search_by)
+
+
 
 status_label = ttk.Label(root, text="")
 # Create a Text widget to display the data
@@ -407,6 +460,7 @@ add_button.pack()
 delete_button.pack()
 search_button.pack()
 update_button.pack()
+search_task_button.pack()
 export_button.pack()
 status_label.pack()
 
